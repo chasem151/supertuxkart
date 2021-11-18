@@ -2,9 +2,7 @@ import pystk
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-
-def control(aim_point, current_vel, steer_gain=6, skid_thresh=0.2, target_vel=25):
-    import numpy as np
+def control(aim_point, current_vel):
     """
     Set the Action for the low-level controller
     :param aim_point: Aim point, in screen coordinate frame [-1..1]
@@ -20,34 +18,29 @@ def control(aim_point, current_vel, steer_gain=6, skid_thresh=0.2, target_vel=25
     Hint: Use action.steer to turn the kart towards the aim_point, clip the steer angle to -1..1
     Hint: You may want to use action.drift=True for wide turns (it will turn faster)
     """
-
+    for i in range(100):
+        if(aim_point[0] > 0):
+            action.steer = aim_point[0] + .75
+        if(aim_point[0] < 0):
+            action.steer = aim_point[0] - .75
+        #action.steer = aim_point[0] + 0
+        if(aim_point[0] > .2 or aim_point[0] < -.2):
+            action.drift=True
+            if(aim_point[0] > .5):
+                action.steer = aim_point[0] +.5
+                action.drift = False
+            if(aim_point[0] < -.5):
+                action.steer = aim_point[0] - .5
+                action.drift = False
+        else:
+            action.drift=False
+        if(aim_point[0] < .3 and aim_point[0] > -.3):
+            action.nitro = True
+            action.acceleration = 1
+        else:
+        #print(aim_point)
+            action.acceleration = .75
    
- 
-    
-
-    #compute acceleration
-    action.acceleration = np.clip(target_vel - current_vel ,0,1)
-    
-    if current_vel > target_vel:
-    	action.brake = True
-    	action.nitro = False
-    else:
-    	action.brake = False	
-    	action.nitro = True
-    
-    
-    # Compute steering
-    action.steer = np.clip(steer_gain * aim_point[0], -1, 1)
-
-    # Compute skidding
-    if abs(aim_point[0]) > skid_thresh:
-        action.drift = True
-  
-    else:
-        action.drift = False
-        
-
-    
 
     return action
 
