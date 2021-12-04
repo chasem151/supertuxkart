@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import numpy as np
 
 
 def spatial_argmax(logit):
@@ -19,39 +20,22 @@ class Planner(torch.nn.Module):
       super().__init__()
 
       layers = []
-      layers.append(torch.nn.Conv2d(3,16,2,1,7))
+      layers.append(torch.nn.Conv2d(3,16,3,1,0)) # padding=0 to capture the edges of images with the 3x3 filter
+      layers.append(torch.nn.BatchNorm2d(16)) # standardize inputs of the model after each convolutional layer to converge faster in training
+      layers.append(torch.nn.ReLU()) 
+      layers.append(torch.nn.Conv2d(16,32, 5,1,0))
+      layers.append(torch.nn.BatchNorm2d(32))
+      layers.append(torch.nn.ReLU()) # MODEL ARCH: input image, convolutional layer, batchnorm2d, nonlinearity, pooling
+      layers.append(torch.nn.Conv2d(32,32,7,2,0))
+      layers.append(torch.nn.BatchNorm2d(32))
       layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(16, 6, 13, 1, 1))
+      layers.append(torch.nn.Conv2d(32,16 ,3,1,0))
+      layers.append(torch.nn.BatchNorm2d(16))
       layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(6,9,2,1,2))
-      layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(9, 16, 2, 1, 4))
-      layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(16, 12, 5, 1, 0))
-      layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(12, 16, 3, 1, 3))
-      layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(16, 12, 9, 1, 2))
-      layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(12, 12, 3, 1, 1))
-      layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(12, 12, 5, 1, 2))
-      layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(12, 9, 4, 1, 0))
-      layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.MaxPool2d(kernel_size=3, stride=1))
-     
-      layers.append(torch.nn.MaxPool2d(kernel_size=3, stride=1))
-      layers.append(torch.nn.MaxPool2d(kernel_size=3, stride=1))
-      layers.append(torch.nn.MaxPool2d(kernel_size=2, stride=1))
-      #layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.MaxPool2d(3,1,0))
+      layers.append(torch.nn.MaxPool2d(3,1,0))
+      layers.append(torch.nn.MaxPool2d(3,1,0)) # small kernels instead of fully connected network allows better weight sharing, faster training/testing
       self._conv = torch.nn.Sequential(*layers)
-     # self.pool = torch.nn.MaxPool2d(kernel_size=2, stride=2)
-
-      #self.linSize = 16*2*2
-     # self.bn1 = torch.nn.BatchNorm2d(1)
-      self.lin1 = torch.nn.Linear(64,1)
-
 
 
     def forward(self, img):
@@ -61,6 +45,12 @@ class Planner(torch.nn.Module):
         @img: (B,3,96,128)
         return (B,2)
         """
+       #img = color.rgb2gray(img)
+        #img = lit.rgb2gray_approx(img)
+        #print(img.shape)
+        #color_img = np.asarray(img) / 255
+        #img = np.mean(img, axis=2)
+        #print(img.shape)
         x = self._conv(img)
         #x *= torch.sigmoid(x) # swish activation
         #x = self.pool(x)

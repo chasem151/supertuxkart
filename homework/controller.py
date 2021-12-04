@@ -18,6 +18,7 @@ def control(aim_point, current_vel):
     Hint: Use action.steer to turn the kart towards the aim_point, clip the steer angle to -1..1
     Hint: You may want to use action.drift=True for wide turns (it will turn faster)
     """
+    print(aim_point)
     for i in range(100):
         if(aim_point[0] > 0):
             action.steer = aim_point[0] + .75
