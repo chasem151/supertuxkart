@@ -35,6 +35,11 @@ class Planner(torch.nn.Module):
       layers.append(torch.nn.MaxPool2d(3,1,0))
       layers.append(torch.nn.MaxPool2d(3,1,0))
       layers.append(torch.nn.MaxPool2d(3,1,0)) # small kernels instead of fully connected network allows better weight sharing, faster training/testing
+      #dropout?? nn.Dropout2d(0.25)
+      # nn.Dropout2d(0.5)
+      layers.append(torch.nn.Linear(50,128)) # fully connected layer 1, default bias=True, this learns its own bias
+      layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.Linear(128,2)) # applies a linear transformation y=xAT + b
       self._conv = torch.nn.Sequential(*layers)
 
 
