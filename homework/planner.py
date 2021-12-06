@@ -20,26 +20,36 @@ class Planner(torch.nn.Module):
       super().__init__()
 
       layers = []
-      layers.append(torch.nn.Conv2d(3,16,3,1,0)) # padding=0 to capture the edges of images with the 3x3 filter
-      layers.append(torch.nn.BatchNorm2d(16)) # standardize inputs of the model after each convolutional layer to converge faster in training
-      layers.append(torch.nn.ReLU()) 
-      layers.append(torch.nn.Conv2d(16,32, 5,1,0))
-      layers.append(torch.nn.BatchNorm2d(32))
-      layers.append(torch.nn.ReLU()) # MODEL ARCH: input image, convolutional layer, batchnorm2d, nonlinearity, pooling
-      layers.append(torch.nn.Conv2d(32,32,7,2,0))
-      layers.append(torch.nn.BatchNorm2d(32))
+      layers.append(torch.nn.Conv2d(3,16,3,1,0)) # MODEL ARCH: input image, convolutional layer(s), nonlinearity (ReLU), batchnorm2d, max pooling, nonlinearity (ReLU)
       layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Conv2d(32,16 ,3,1,0))
       layers.append(torch.nn.BatchNorm2d(16))
+      layers.append(torch.nn.MaxPool2d(3,1,0))
       layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.Conv2d(16,32, (5,1),1,0)) # padding=0 to capture the edges of the image with the 3x3 filter
+      layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.Conv2d(32,32, (1,5),1,0)) # 5x1 1x5 convolutions to factorize a 5x5 convolution
+      layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.BatchNorm2d(32))
+      layers.append(torch.nn.MaxPool2d((5,1),1,0))
+      layers.append(torch.nn.MaxPool2d((1,5),1,0))
+      layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.Conv2d(32,16,(7,1),2,0))
+      layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.Conv2d(16,16,(1,7),2,0)) # 7x1 1x7 to factorize a 5x5 convolution
+      layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.BatchNorm2d(16))
+      layers.append(torch.nn.MaxPool2d((5,1),1,0))
+      layers.append(torch.nn.MaxPool2d((1,5),1,0))
+      layers.append(torch.nn.ReLU())
+      layers.append(torch.nn.Conv2d(16,16 ,3,1,0))
+      layers.append(torch.nn.BatchNorm2d(16))
       layers.append(torch.nn.MaxPool2d(3,1,0))
-      layers.append(torch.nn.MaxPool2d(3,1,0))
-      layers.append(torch.nn.MaxPool2d(3,1,0)) # small kernels instead of fully connected network allows better weight sharing, faster training/testing
       #dropout?? nn.Dropout2d(0.25)
       # nn.Dropout2d(0.5)
-      layers.append(torch.nn.Linear(50,128)) # fully connected layer 1, default bias=True, this learns its own bias
+      layers.append(torch.nn.Linear(18,16))
       layers.append(torch.nn.ReLU())
-      layers.append(torch.nn.Linear(128,2)) # applies a linear transformation y=xAT + b
+      layers.append(torch.nn.Linear(16,2)) # applies a linear transformation y=xAT + b
+      layers.append(torch.nn.ReLU())
       self._conv = torch.nn.Sequential(*layers)
 
 
