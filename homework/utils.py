@@ -172,8 +172,8 @@ if __name__ == '__main__':
     parser = ArgumentParser("Collects a dataset for the high-level planner")
     parser.add_argument('track', nargs='+')
     parser.add_argument('-o', '--output', default=DATASET_PATH)
-    parser.add_argument('-n', '--n_images', default=10000, type=int)
-    parser.add_argument('-m', '--steps_per_track', default=20000, type=int)
+    parser.add_argument('-n', '--n_images', default=25000, type=int)
+    parser.add_argument('-m', '--steps_per_track', default=50000, type=int)
     parser.add_argument('--aim_noise', default=0.1, type=float)
     parser.add_argument('--vel_noise', default=5, type=float)
     parser.add_argument('-v', '--verbose', action='store_true')
@@ -202,7 +202,7 @@ if __name__ == '__main__':
 
 
         while n < args.steps_per_track:
-            steps, how_far = pytux.rollout(track, noisy_control, planner=planner, max_frames=1000, verbose=args.verbose, data_callback=collect)
+            steps, how_far = pytux.rollout(track, noisy_control, planner=None, max_frames=1000, verbose=args.verbose, data_callback=collect)
             print(steps, how_far)
             # Add noise after the first round
             aim_noise, vel_noise = args.aim_noise, args.vel_noise

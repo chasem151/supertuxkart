@@ -20,6 +20,7 @@ class Planner(torch.nn.Module):
       super().__init__()
 
       layers = []
+      
       layers.append(torch.nn.Conv2d(3,16,3,1,0)) # MODEL ARCH: input image, convolutional layer(s), nonlinearity (ReLU), batchnorm2d, max pooling, nonlinearity (ReLU)
       layers.append(torch.nn.ReLU())
       layers.append(torch.nn.BatchNorm2d(16))
