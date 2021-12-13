@@ -7,6 +7,7 @@
 ### Execution
 > cd homework
 > python -m controller trackname -v 
+> 
 > (trackname includes zengarden, lighthouse, hacienda, snowtuxpeak, cornfield_crossing, scotland, cocoa_temple)
 ### Train and run planner.py
 > cd homework
