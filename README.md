@@ -5,9 +5,13 @@
 > pip3 install pytorch tensorflow
 ### Execution
 > cd homework
-> python -m controller trackname -v (tracknames include zengarden, lighthouse, hacienda, snowtuxpeak, cornfield_crossing, scotland, cocoa_temple)
+> python -m controller trackname -v 
+(tracknames include zengarden, lighthouse, hacienda, snowtuxpeak, cornfield_crossing, scotland, cocoa_temple)
 ### Train and run planner.py
 > cd homework
+> 
 > python -m utils zengarden lighthouse hacienda snowtuxpeak cornfield_crossing scotland 
+> 
 > python -m train
+> 
 > python -m planner trackname -v
